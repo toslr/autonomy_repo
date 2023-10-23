@@ -31,7 +31,7 @@ class Navigator(BaseNavigator):
     
     def compute_heading_control(self,state: TurtleBotState,goal: TurtleBotState):
         message = TurtleBotControl()
-        err = wrap_angle(abs(goal.theta-state.theta))
+        err = wrap_angle(goal.theta-state.theta)
         om = self.kp*err
         message.omega = om
         return message
@@ -51,16 +51,16 @@ class Navigator(BaseNavigator):
         if self.V_prev < self.V_PREV_THRESH :
             self.V_prev = self.V_PREV_THRESH
     
-        V = self.V_prev + dt*(np.cos(self.theta)*u_1+np.sin(self.theta)*u_2)
-        om = 1/self.V_prev*(-np.sin(self.theta)*u_1+np.cos(self.theta)*u_2)
+        V = self.V_prev + dt*(np.cos(state.theta)*u_1+np.sin(state.theta)*u_2)
+        om = 1/self.V_prev*(-np.sin(state.theta)*u_1+np.cos(state.theta)*u_2)
 
         if V<self.V_PREV_THRESH:
             V=self.V_PREV_THRESH
 
-        return V, om
+        return TurtleBotControl(v=V, omega=om)
     
     def compute_trajectory_plan(self, state: TurtleBotState, goal: TurtleBotState, occupancy: StochOccupancyGrid2D, resolution: float, horizon: float) -> TrajectoryPlan | None:
-        astar = AStar((0, 0), (horizon, horizon), state, goal, occupancy, resolution)
+        astar = AStar((state.x-horizon,state.y-horizon),(state.x+horizon,state.y+horizon), np.asarray((state.x,state.y)), np.asarray((goal.x,goal.y)), occupancy, resolution)
         if not astar.solve() or len(astar.path)<4:
             return None
         self.reset()
@@ -114,7 +114,7 @@ class AStar(object):
 
         """
         ########## Code starts here ##########
-        return ((x[0],x[1])>self.statespace_lo and (x[0],x[1])<self.statespace_hi and self.occupancy.is_free(x))
+        return ((x[0],x[1])>self.statespace_lo and (x[0],x[1])<self.statespace_hi and self.occupancy.is_free(np.asarray(x)))
         ########## Code ends here ##########
 
     def distance(self, x1, x2):
@@ -250,6 +250,6 @@ class AStar(object):
 
 if __name__=="__main__":
     rclpy.init()
-    navigator = Navigator()
+    navigator = Navigator(2,2,2,2)
     rclpy.spin(navigator)
     rclpy.shutdown()
