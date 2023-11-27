@@ -15,16 +15,16 @@ from std_msgs.msg import Bool
 class FrontierExplorer(Node):
     def __init__(self):
         super().__init__("frontier_explorer")
-        self.create_subscription(Bool,'/nav_success',self.sub_callback_nav,10)
+        #self.create_subscription(Bool,'/nav_success',10)
         self.create_subscription(TurtleBotState,'/state',self.sub_callback_state,10)
         self.create_subscription(OccupancyGrid,'/map',self.sub_callback_map,10)
         self.cmd_nav = self.create_publisher(TurtleBotState,"/cmd_nav",10)
+        timer = self.create_timer(10,self.pub_nav)
 
 
     
-    def sub_callback_nav(self,message): #figure out when to send the new navigation command
-        if message.data :
-            self.pub_nav()
+    #def sub_callback_nav(self, msg): #figure out when to send the new navigation command
+    #     self.pub_nav()
     
     def sub_callback_state(self,message):
         self.state = TurtleBotState(x=message.x,y=message.y,theta=message.theta)
