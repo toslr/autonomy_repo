@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+import launch
+import launch.actions
+import launch_ros
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -41,11 +43,20 @@ def generate_launch_description():
                 executable="state_publisher.py",
                 package="asl_tb3_lib",
             ),
-            # student's heading controller node
             Node(
-                executable="explorer.py",
+                executable="navigator.py",
                 package="autonomy_repo",
-                parameters=[{"use_sim_time": use_sim_time}]
+                parameters =[{"use_sim_time":use_sim_time}]
             ),
+            launch.actions.TimerAction(
+                period=5.0,
+                actions=[
+                    launch_ros.actions.Node(
+                        executable='explorer.py',
+                        package = 'autonomy_repo',
+                        parameters =[{"use_sim_time":use_sim_time}]
+                    )
+                ]),
+    
         ]
     )
