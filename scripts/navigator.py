@@ -17,12 +17,12 @@ from asl_tb3_lib.control import BaseHeadingController
 class Navigator(BaseNavigator):
     def __init__(self,kpx: float, kpy: float, kdx: float, kdy:float) -> None:
         super().__init__()
-        self.kp = 1.0
-        self.V_PREV_THRESH = 0.0001
-        self.kpx = kpx
-        self.kpy = kpy
-        self.kdx = kdx
-        self.kdy = kdy
+        self.kp = 2.0
+        self.V_PREV_THRESH = 1e-3
+        self.kpx = 0.5
+        self.kpy = 0.5
+        self.kdx = 1.5
+        self.kdy = 1.5
     
     def reset(self):
         self.v_desired = 0.15
